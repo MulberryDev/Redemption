@@ -1,0 +1,8 @@
+H:\Redemption\Redemption\bin\Release\Redemption.exe.config
+H:\Redemption\Redemption\bin\Release\Redemption.exe
+H:\Redemption\Redemption\bin\Release\Redemption.pdb
+H:\Redemption\Redemption\obj\Release\Redemption.csprojResolveAssemblyReference.cache
+H:\Redemption\Redemption\obj\Release\Redemption.Redemption.resources
+H:\Redemption\Redemption\obj\Release\Redemption.csproj.GenerateResource.Cache
+H:\Redemption\Redemption\obj\Release\Redemption.exe
+H:\Redemption\Redemption\obj\Release\Redemption.pdb
