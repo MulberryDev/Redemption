@@ -6,3 +6,7 @@ H:\Redemption\Redemption\obj\Release\Redemption.Redemption.resources
 H:\Redemption\Redemption\obj\Release\Redemption.csproj.GenerateResource.Cache
 H:\Redemption\Redemption\obj\Release\Redemption.exe
 H:\Redemption\Redemption\obj\Release\Redemption.pdb
+H:\Redemption\Redemption\obj\Release\Redemption.ProjectInstaller.resources
+C:\Redemption\Redemption\bin\Release\Redemption.exe.config
+C:\Redemption\Redemption\obj\Release\Redemption.exe
+C:\Redemption\Redemption\obj\Release\Redemption.pdb
