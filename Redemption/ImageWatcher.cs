@@ -23,9 +23,15 @@ namespace Redemption
             {
                 FileInfo fileInfo = new FileInfo(file);
                 string fullTargetPath = Path.Combine(base.destinationPath, fileInfo.Name);
-
-                if (File.Exists(fullTargetPath)) File.Delete(fullTargetPath);
-                File.Move(file, fullTargetPath);
+                try
+                {
+                    if (File.Exists(fullTargetPath)) File.Delete(fullTargetPath);
+                    File.Move(file, fullTargetPath);
+                }
+                catch (Exception ex)
+                {
+                    Logger.WriteLine("Failed to move a file in {0}: {1}", base.sourcePath, ex);
+                }
 
                 Logger.WriteLine("Found: {0}, Moved To: {1}", file, Path.Combine(base.destinationPath, fileInfo.Name));
             }
