@@ -11,12 +11,18 @@ namespace Redemption
     {
         static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[] 
-            { 
-                new Redemption() 
-            };
-            ServiceBase.Run(ServicesToRun);
+            #if DEBUG
+                Redemption redemption = new Redemption();
+                redemption.OnDebug();
+                System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+            #else
+                ServiceBase[] ServicesToRun;
+                ServicesToRun = new ServiceBase[] 
+                { 
+                    new Redemption() 
+                };
+                ServiceBase.Run(ServicesToRun);
+            #endif
         }
     }
 }

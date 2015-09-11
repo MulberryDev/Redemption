@@ -12,17 +12,27 @@ namespace Redemption
 {
     public partial class Redemption : ServiceBase
     {
+        ImageWatcher imageWatcher; 
+
         public Redemption()
         {
             InitializeComponent();
         }
 
+        public void OnDebug()
+        {
+            OnStart(null);
+            OnStop();
+        }
+
         protected override void OnStart(string[] args)
         {
+            imageWatcher = new ImageWatcher();
         }
 
         protected override void OnStop()
         {
+            imageWatcher.Stop();
         }
     }
 }
