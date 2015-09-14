@@ -22,7 +22,7 @@ namespace Redemption
         public void OnDebug()
         {
             OnStart(null);
-            OnStop();
+            //OnStop();
         }
 
         protected override void OnStart(string[] args)

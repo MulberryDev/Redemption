@@ -17,7 +17,7 @@ namespace Redemption
             if (!Directory.Exists(base.destinationPath))
                 Directory.CreateDirectory(base.destinationPath);
 
-            string[] files = Directory.GetFiles(base.sourcePath);
+            string[] files = Directory.GetFiles(base.sourcePath, "*", SearchOption.AllDirectories);
 
             foreach (string file in files)
             {
@@ -28,12 +28,25 @@ namespace Redemption
                     if (File.Exists(fullTargetPath)) File.Delete(fullTargetPath);
                     File.Move(file, fullTargetPath);
                 }
-                catch (Exception ex)
+                catch (IOException ex)
                 {
                     Logger.WriteLine("Failed to move a file in {0}: {1}", base.sourcePath, ex);
                 }
 
                 Logger.WriteLine("Found: {0}, Moved To: {1}", file, Path.Combine(base.destinationPath, fileInfo.Name));
+            }
+
+            DeleteEmptyFolders(base.sourcePath);
+        }
+
+        private void DeleteEmptyFolders(string path)
+        {
+            foreach (var folder in Directory.EnumerateDirectories(path))
+            {
+                if (new DirectoryInfo(folder).EnumerateFiles().Any()) return;
+                if (new DirectoryInfo(folder).EnumerateDirectories().Any()) DeleteEmptyFolders(folder);
+
+                Directory.Delete(folder);
             }
         }
     }

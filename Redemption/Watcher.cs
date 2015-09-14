@@ -18,8 +18,15 @@ namespace Redemption
         {
             this.sourcePath = sourcePath;
             this.destinationPath = destinationPath;
-
-            if (!Directory.Exists(sourcePath)) Directory.CreateDirectory(sourcePath);
+            try
+            {
+                if (!Directory.Exists(sourcePath)) Directory.CreateDirectory(sourcePath);
+            }
+            catch (IOException ex)
+            {
+                Logger.WriteLine("Unable to create source directory at {0}: {1}", sourcePath, ex);
+                return;
+            }
 
             fileSystemWatcher = new FileSystemWatcher();
             fileSystemWatcher.Path = sourcePath;

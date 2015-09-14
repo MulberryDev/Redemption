@@ -52,6 +52,7 @@
     <Compile Include="ProjectInstaller.Designer.cs">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </Compile>
+    <Compile Include="IRule.cs" />
     <Compile Include="Watcher.cs" />
     <Compile Include="ImageWatcher.cs" />
     <Compile Include="Redemption.cs">
