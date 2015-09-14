@@ -1,4 +1,4 @@
-﻿namespace Redemption
+﻿namespace RedemptionService
 {
     partial class ProjectInstaller
     {

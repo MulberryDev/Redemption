@@ -1,7 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redemption", "Redemption\Redemption.csproj", "{EB047E98-50D3-4ECB-ADF5-4D11EDC9B25D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedemptionService", "RedemptionService\RedemptionService.csproj", "{EB047E98-50D3-4ECB-ADF5-4D11EDC9B25D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedemptionTest", "RedemptionTest\RedemptionTest.csproj", "{976CC6B7-F7E6-4D88-B0D3-431723F24A64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redemption", "Redemption\Redemption.csproj", "{6174CF37-0164-4AC5-AD6D-0D6871F6063A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +17,14 @@ Global
 		{EB047E98-50D3-4ECB-ADF5-4D11EDC9B25D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB047E98-50D3-4ECB-ADF5-4D11EDC9B25D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB047E98-50D3-4ECB-ADF5-4D11EDC9B25D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{976CC6B7-F7E6-4D88-B0D3-431723F24A64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{976CC6B7-F7E6-4D88-B0D3-431723F24A64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{976CC6B7-F7E6-4D88-B0D3-431723F24A64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{976CC6B7-F7E6-4D88-B0D3-431723F24A64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6174CF37-0164-4AC5-AD6D-0D6871F6063A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6174CF37-0164-4AC5-AD6D-0D6871F6063A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6174CF37-0164-4AC5-AD6D-0D6871F6063A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6174CF37-0164-4AC5-AD6D-0D6871F6063A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

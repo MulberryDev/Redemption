@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Redemption
 {
-    class ImageWatcher : Watcher
+    public class ImageWatcher : Watcher
     {
         public ImageWatcher() : base(ConfigurationManager.AppSettings["sourceFolder"], ConfigurationManager.AppSettings["destinationFolder"]) { }
 
