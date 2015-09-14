@@ -33,7 +33,7 @@ namespace Redemption
                     Logger.WriteLine("Failed to move a file in {0}: {1}", base.sourcePath, ex);
                 }
 
-                Logger.WriteLine("Found: {0}, Moved To: {1}", file, Path.Combine(base.destinationPath, fileInfo.Name));
+                //Logger.WriteLine("Found: {0}, Moved To: {1}", file, Path.Combine(base.destinationPath, fileInfo.Name));
             }
 
             DeleteEmptyFolders(base.sourcePath);
@@ -41,12 +41,20 @@ namespace Redemption
 
         private void DeleteEmptyFolders(string path)
         {
-            foreach (var folder in Directory.EnumerateDirectories(path))
+            try
             {
-                if (new DirectoryInfo(folder).EnumerateFiles().Any()) return;
-                if (new DirectoryInfo(folder).EnumerateDirectories().Any()) DeleteEmptyFolders(folder);
+                foreach (var folder in Directory.EnumerateDirectories(path))
+                {
+                    DirectoryInfo folderInfo = new DirectoryInfo(folder);
+                    if (folderInfo.EnumerateFiles().Any()) return;
+                    if (folderInfo.EnumerateDirectories().Any()) DeleteEmptyFolders(folder);
 
-                Directory.Delete(folder);
+                    Directory.Delete(folder);
+                }
+            }
+            catch (IOException ex)
+            {
+                Logger.WriteLine("An error occured while trying to delete empty folders in {0}: {1}", path, ex);
             }
         }
     }
