@@ -27,6 +27,7 @@ namespace Redemption
                 {
                     if (File.Exists(fullTargetPath)) File.Delete(fullTargetPath);
                     File.Move(file, fullTargetPath);
+                    // Create Image Model, 
                 }
                 catch (IOException ex)
                 {

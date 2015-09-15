@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Redemption;
 
 namespace RedemptionTest
 {
@@ -9,6 +10,8 @@ namespace RedemptionTest
         [TestMethod]
         public void TestMethod1()
         {
+            ImageWatcher imageWatcher = new ImageWatcher();
+            Assert.IsTrue(true);
         }
     }
 }

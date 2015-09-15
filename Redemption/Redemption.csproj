@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Image.cs" />
     <Compile Include="ImageWatcher.cs" />
     <Compile Include="IRule.cs" />
     <Compile Include="Logger.cs" />
