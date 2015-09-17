@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Redemption
@@ -10,8 +11,7 @@ namespace Redemption
     {
         public bool ApplyRule(Multimedia multimedia)
         {
-            return true;
-            // Check with RegEx if naming convention is right
+            return new Regex("^[A-Z]{2}[0-9]{4}_[0-9]{3}[A-Z]{1}[0-9]{3}(.*)$").IsMatch(multimedia.Code);
         }
     }
 }

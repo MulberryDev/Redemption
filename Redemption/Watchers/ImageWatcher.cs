@@ -18,7 +18,8 @@ namespace Redemption
             if (!Directory.Exists(base.destinationPath))
                 Directory.CreateDirectory(base.destinationPath);
 
-            string[] files = Directory.GetFiles(base.sourcePath, "*", SearchOption.AllDirectories);
+            var ext = new List<string> {".jpg", ".gif", ".png"};
+            var files = Directory.GetFiles(base.sourcePath, "*", SearchOption.AllDirectories).Where(s => ext.Any(i => s.EndsWith(i)));
 
             foreach (string file in files)
             {
@@ -26,7 +27,8 @@ namespace Redemption
                 string fullTargetPath = Path.Combine(base.destinationPath, fileInfo.Name);
 
                 Multimedia multimedia = new Multimedia(fileInfo);
-                multimedia.Save();
+                
+                if (!multimedia.Save()) continue;
 
                 try
                 {
