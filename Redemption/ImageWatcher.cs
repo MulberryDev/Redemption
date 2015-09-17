@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace Redemption
 {
@@ -23,11 +24,19 @@ namespace Redemption
             {
                 FileInfo fileInfo = new FileInfo(file);
                 string fullTargetPath = Path.Combine(base.destinationPath, fileInfo.Name);
+
+                Multimedia multimedia = new Multimedia(fileInfo.Name, fullTargetPath);
+                using (var img = Image.FromFile(file))
+                {
+                    multimedia.Size.Height = img.Height;
+                    multimedia.Size.Width = img.Width;
+                }
+                multimedia.ApplyRules();
+                multimedia.Save();
                 try
                 {
                     if (File.Exists(fullTargetPath)) File.Delete(fullTargetPath);
                     File.Move(file, fullTargetPath);
-                    // Create Image Model, 
                 }
                 catch (IOException ex)
                 {

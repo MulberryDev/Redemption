@@ -8,16 +8,13 @@ namespace Redemption
 {
     public class Size
     {
-        private int height;
-        public int Height { get { return this.height; } }
-
-        private int width;
-        public int Width { get { return this.width; } }
+        public int Height { get; set; }
+        public int Width { get; set; }
 
         public Size(int height, int width)
         {
-            this.height = height;
-            this.width = width;
+            this.Height = height;
+            this.Width = width;
         }
     }
 }
