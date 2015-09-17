@@ -10,16 +10,13 @@ namespace Redemption
     public class Multimedia
     {
         public int ID { get; set; }
-        public int ProductID { get; set; }
-        public int MultimediaTypeID { get; set; }
+        public int? ProductID { get { return null; } }
         public string Code { get; set; }
         public string FilePath { get; set; }
-        public Size Size { get; set; }
         public int Version { get; set; }
 
         public Multimedia(string code, string filePath)
         {
-            Size = new Size(0, 0);
             this.Code = code;
             this.FilePath = filePath;
         }

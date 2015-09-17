@@ -26,11 +26,6 @@ namespace Redemption
                 string fullTargetPath = Path.Combine(base.destinationPath, fileInfo.Name);
 
                 Multimedia multimedia = new Multimedia(fileInfo.Name, fullTargetPath);
-                using (var img = Image.FromFile(file))
-                {
-                    multimedia.Size.Height = img.Height;
-                    multimedia.Size.Width = img.Width;
-                }
                 multimedia.ApplyRules();
                 multimedia.Save();
                 try
