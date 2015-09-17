@@ -25,9 +25,9 @@ namespace Redemption
                 FileInfo fileInfo = new FileInfo(file);
                 string fullTargetPath = Path.Combine(base.destinationPath, fileInfo.Name);
 
-                Multimedia multimedia = new Multimedia(fileInfo.Name, fullTargetPath);
-                multimedia.ApplyRules();
+                Multimedia multimedia = new Multimedia(fileInfo);
                 multimedia.Save();
+
                 try
                 {
                     if (File.Exists(fullTargetPath)) File.Delete(fullTargetPath);
@@ -37,8 +37,6 @@ namespace Redemption
                 {
                     Logger.WriteLine("Failed to move a file in {0}: {1}", base.sourcePath, ex);
                 }
-
-                //Logger.WriteLine("Found: {0}, Moved To: {1}", file, Path.Combine(base.destinationPath, fileInfo.Name));
             }
 
             DeleteEmptyFolders(base.sourcePath);

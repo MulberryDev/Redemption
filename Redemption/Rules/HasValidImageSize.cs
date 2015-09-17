@@ -10,7 +10,7 @@ namespace Redemption
     {
         public bool ApplyRule(Multimedia multimedia)
         {
-            return (true);
+            return (multimedia.Size.Height == 6000 && multimedia.Size.Width == 6000);
         }
     }
 }
