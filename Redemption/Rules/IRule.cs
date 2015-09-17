@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Redemption
 {
-    class IRule
+    public interface IRule
     {
+        bool ApplyRule(Multimedia multimedia);
     }
 }
