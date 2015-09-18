@@ -25,6 +25,11 @@ namespace Redemption
 
         private FileInfo fileInfo;
 
+        public Multimedia()
+        { 
+        
+        }
+
         public Multimedia(FileInfo fileInfo)
         {
             this.fileInfo = fileInfo;
@@ -32,7 +37,7 @@ namespace Redemption
             this.Code = fileInfo.Name;
             this.FilePath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], fileInfo.Name);
 
-            using (Image image = new Bitmap(fileInfo.FullName))
+            using (Image image = Image.FromFile(fileInfo.FullName))
                 this.Size = new Size(image.Height, image.Width);
         }
 
@@ -48,7 +53,7 @@ namespace Redemption
         private void populateProductID()
         {
             Database db = new Database("Database");
-            int productID = db.ExecuteScalar<int>("SELECT TOP 1 ID FROM Product WHERE code = @0", this.Code);
+            int? productID = db.ExecuteScalar<int?>("SELECT TOP 1 ID FROM Product WHERE code = @0", this.Code);
 
             this.ProductID = productID;
         }
@@ -58,7 +63,7 @@ namespace Redemption
             Database db = new Database("Database");
             int versionCount = db.ExecuteScalar<int>("SELECT (SELECT COUNT(ID) FROM Multimedia WHERE code = @0) + (SELECT COUNT(ID) FROM MultimediaArchive WHERE code = @0)", this.Code);
 
-            this.Version = (versionCount != 0) ? versionCount + 1 : 0;
+            this.Version = (versionCount != 0) ? versionCount : 0;
         }
 
         public bool Save()
@@ -77,10 +82,9 @@ namespace Redemption
             {
                 Database db = new Database("Database");
 
-                Multimedia archiveMultimedia;
                 if (this.Version != 0)
                 {
-                    archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, Code, FilePath, Version FROM Multimedia WHERE code = @0", this.Code);
+                    Multimedia archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, Code, FilePath, Version FROM Multimedia WHERE code = @0", this.Code);
                     db.Insert("MultimediaArchive", "ID", archiveMultimedia);
                     db.Delete(archiveMultimedia);
                 }
