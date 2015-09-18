@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Size.cs" />
+    <Compile Include="Rules\ProductLinkExists.cs" />
     <Compile Include="Watchers\ImageWatcher.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Models\PetaPoco.cs" />

@@ -43,7 +43,7 @@ namespace Redemption
 
         public bool ApplyRules()
         { 
-            IRule[] rules = new IRule[] { new HasValidImageSize(), new CorrectNamingConvention() };
+            IRule[] rules = new IRule[] { new HasValidImageSize(), new CorrectNamingConvention(), new ProductLinkExists() };
             foreach (IRule rule in rules)
                 if (rule.ApplyRule(this) == false) return false;
   
