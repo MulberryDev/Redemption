@@ -8,6 +8,6 @@ namespace Redemption
 {
     public interface IRule
     {
-        bool ApplyRule(Multimedia multimedia);
+        bool ApplyRule(Multimedia multimedia, out string ruleMessage);
     }
 }

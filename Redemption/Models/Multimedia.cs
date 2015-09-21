@@ -24,6 +24,7 @@ namespace Redemption
         public Size Size { get; set; }
 
         private FileInfo fileInfo;
+        private string ruleMessage;
 
         public Multimedia()
         { 
@@ -33,19 +34,28 @@ namespace Redemption
         public Multimedia(FileInfo fileInfo)
         {
             this.fileInfo = fileInfo;
-            this.ProductID = null;
             this.Code = fileInfo.Name;
             this.FilePath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], fileInfo.Name);
 
-            using (Image image = Image.FromFile(fileInfo.FullName))
-                this.Size = new Size(image.Height, image.Width);
+            // Out of memory exception when handling multiple 6K by 6K images using Image.FromFile
+            try
+            {
+                using (FileStream fs = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (Image image = Image.FromStream(fs))
+                        this.Size = new Size(image.Height, image.Width);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine("An error occured trying to read the image size of {0}: {1}", this.Code, ex);
+            }
         }
 
         public bool ApplyRules()
         { 
             IRule[] rules = new IRule[] { new HasValidImageSize(), new CorrectNamingConvention(), new ProductLinkExists() };
             foreach (IRule rule in rules)
-                if (rule.ApplyRule(this) == false) return false;
+                if (rule.ApplyRule(this, out ruleMessage) == false)
+                    return false;
   
             return true;
         }
@@ -70,8 +80,8 @@ namespace Redemption
         {
             if (!this.ApplyRules())
             {
-                if (File.Exists(fileInfo.FullName + ".bad")) File.Delete(fileInfo.FullName + ".bad");
-                File.Move(fileInfo.FullName, fileInfo.FullName + ".bad");
+                if (File.Exists(fileInfo.FullName + ruleMessage)) File.Delete(fileInfo.FullName + ruleMessage);
+                File.Move(fileInfo.FullName, fileInfo.FullName + ruleMessage);
                 return false;
             }
 

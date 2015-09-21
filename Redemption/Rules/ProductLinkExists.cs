@@ -10,8 +10,9 @@ namespace Redemption
 {
     class ProductLinkExists : IRule
     {
-        public bool ApplyRule(Multimedia multimedia)
+        public bool ApplyRule(Multimedia multimedia, out string ruleMessage)
         {
+            ruleMessage = "ProductNotExists";
             Database db = new Database("Database");
             return db.ExecuteScalar<int>("SELECT TOP 1 COUNT(ID) FROM Product WHERE code = @0", multimedia.Code.Substring(0, 14).Replace("_", "/")) == 1;
         }

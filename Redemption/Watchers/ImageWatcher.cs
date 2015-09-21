@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Threading;
 
 namespace Redemption
 {
@@ -27,7 +28,7 @@ namespace Redemption
                 string fullTargetPath = Path.Combine(base.destinationPath, fileInfo.Name);
 
                 Multimedia multimedia = new Multimedia(fileInfo);
-                
+
                 if (!multimedia.Save()) continue;
 
                 try

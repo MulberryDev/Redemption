@@ -9,8 +9,9 @@ namespace Redemption
 {
     class CorrectNamingConvention : IRule
     {
-        public bool ApplyRule(Multimedia multimedia)
+        public bool ApplyRule(Multimedia multimedia, out string ruleMessage)
         {
+            ruleMessage = "NameNotValid";
             return new Regex("^[A-Z]{2}[0-9]{4}_[0-9]{3}[A-Z]{1}[0-9]{3}(.*)$").IsMatch(multimedia.Code);
         }
     }
