@@ -38,6 +38,7 @@ namespace Redemption
             fileSystemWatcher.Changed += new FileSystemEventHandler(OnChanged);
             fileSystemWatcher.Created += new FileSystemEventHandler(OnChanged);
             fileSystemWatcher.Deleted += new FileSystemEventHandler(OnChanged);
+            fileSystemWatcher.Renamed += new RenamedEventHandler(OnChanged);
             fileSystemWatcher.EnableRaisingEvents = true;
         }
 

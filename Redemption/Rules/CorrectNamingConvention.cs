@@ -12,7 +12,7 @@ namespace Redemption
         public bool ApplyRule(Multimedia multimedia, out string ruleMessage)
         {
             ruleMessage = "NameNotValid";
-            return new Regex("^[A-Z]{2}[0-9]{4}_[0-9]{3}[A-Z]{1}[0-9]{3}(.*)$").IsMatch(multimedia.Code);
+            return new Regex("^[A-Z]{2}[0-9]{4}_[0-9]{3}[A-Z]{1}[0-9]{3}(_[0-9]*)?$").IsMatch(multimedia.Code);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Redemption
     {
         public int ID { get; set; }
         public int? ProductID { get; set; }
+        public int MultimediaTypeID { get; set; }
         public string Code { get; set; }
         public string FilePath { get; set; }
         public int Version { get; set; }
@@ -33,8 +34,9 @@ namespace Redemption
 
         public Multimedia(FileInfo fileInfo)
         {
+            this.MultimediaTypeID = 1;
             this.fileInfo = fileInfo;
-            this.Code = fileInfo.Name;
+            this.Code = Path.GetFileNameWithoutExtension(fileInfo.Name);
             this.FilePath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], fileInfo.Name);
 
             // Out of memory exception when handling multiple 6K by 6K images using Image.FromFile
@@ -63,7 +65,7 @@ namespace Redemption
         private void populateProductID()
         {
             Database db = new Database("Database");
-            int? productID = db.ExecuteScalar<int?>("SELECT TOP 1 ID FROM Product WHERE code = @0", this.Code);
+            int? productID = db.ExecuteScalar<int?>("SELECT TOP 1 ID FROM Product WHERE code = @0", this.Code.Substring(0, 14).Replace("_", "/"));
 
             this.ProductID = productID;
         }
@@ -94,9 +96,9 @@ namespace Redemption
 
                 if (this.Version != 0)
                 {
-                    Multimedia archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, Code, FilePath, Version FROM Multimedia WHERE code = @0", this.Code);
-                    db.Insert("MultimediaArchive", "ID", archiveMultimedia);
+                    Multimedia archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, MultimediaTypeID, Code, FilePath, Version FROM Multimedia WHERE code = @0", this.Code);
                     db.Delete(archiveMultimedia);
+                    db.Insert("MultimediaArchive", "ID", false, archiveMultimedia);
                 }
               
                 db.Insert(this);
