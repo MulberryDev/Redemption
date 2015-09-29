@@ -17,7 +17,8 @@ namespace Redemption
         public int ID { get; set; }
         public int? ProductID { get; set; }
         public int MultimediaTypeID { get; set; }
-        public string Code { get; set; }
+        public string Name { get; set; }
+        public string FileName { get; set; }
         public string FilePath { get; set; }
         public int Version { get; set; }
 
@@ -36,8 +37,9 @@ namespace Redemption
         {
             this.MultimediaTypeID = 1;
             this.fileInfo = fileInfo;
-            this.Code = Path.GetFileNameWithoutExtension(fileInfo.Name);
-            this.FilePath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], fileInfo.Name);
+            this.Name = Path.GetFileNameWithoutExtension(fileInfo.Name);
+            this.FileName = fileInfo.Name;
+            this.FilePath = Path.Combine(fileInfo.Name.Substring(0, 2), fileInfo.Name.Substring(2, 4), fileInfo.Name.Substring(7, 3), fileInfo.Name.Substring(10, 4));
 
             // Out of memory exception when handling multiple 6K by 6K images using Image.FromFile
             try
@@ -48,7 +50,7 @@ namespace Redemption
             }
             catch (Exception ex)
             {
-                Logger.WriteLine("An error occured trying to read the image size of {0}: {1}", this.Code, ex);
+                Logger.WriteLine("An error occured trying to read the image size of {0}: {1}", this.Name, ex);
             }
         }
 
@@ -65,7 +67,7 @@ namespace Redemption
         private void populateProductID()
         {
             Database db = new Database("Database");
-            int? productID = db.ExecuteScalar<int?>("SELECT TOP 1 ID FROM Product WHERE code = @0", this.Code.Substring(0, 14).Replace("_", "/"));
+            int? productID = db.ExecuteScalar<int?>("SELECT TOP 1 ID FROM Product WHERE code = @0", this.Name.Substring(0, 14).Replace("_", "/"));
 
             this.ProductID = productID;
         }
@@ -73,7 +75,7 @@ namespace Redemption
         private void populateVersionNumber()
         { 
             Database db = new Database("Database");
-            int versionCount = db.ExecuteScalar<int>("SELECT (SELECT COUNT(ID) FROM Multimedia WHERE code = @0) + (SELECT COUNT(ID) FROM MultimediaArchive WHERE code = @0)", this.Code);
+            int versionCount = db.ExecuteScalar<int>("SELECT (SELECT COUNT(ID) FROM Multimedia WHERE name = @0) + (SELECT COUNT(ID) FROM MultimediaArchive WHERE name = @0)", this.Name);
 
             this.Version = (versionCount != 0) ? versionCount : 0;
         }
@@ -96,7 +98,7 @@ namespace Redemption
 
                 if (this.Version != 0)
                 {
-                    Multimedia archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, MultimediaTypeID, Code, FilePath, Version FROM Multimedia WHERE code = @0", this.Code);
+                    Multimedia archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, MultimediaTypeID, Name, FileName, FilePath, Version FROM Multimedia WHERE Name = @0", this.Name);
                     db.Delete(archiveMultimedia);
                     db.Insert("MultimediaArchive", "ID", false, archiveMultimedia);
                 }
@@ -106,7 +108,7 @@ namespace Redemption
             }
             catch (Exception ex)
             {
-                Logger.WriteLine("Could not insert {0} into the database: {1}", this.Code, ex);
+                Logger.WriteLine("Could not insert {0} into the database: {1}", this.Name, ex);
                 return false;
             }
         }

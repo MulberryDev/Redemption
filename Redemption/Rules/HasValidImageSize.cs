@@ -12,7 +12,7 @@ namespace Redemption
         {
             ruleMessage = "SizeNotValid";
             if (multimedia.Size == null) return false;
-            return (multimedia.Size.Height == 6000 && multimedia.Size.Width == 6000);
+            return ((multimedia.Size.Height == 6000 || multimedia.Size.Height == 2000) && (multimedia.Size.Width == 6000 || multimedia.Size.Width == 2000));
         }
     }
 }
