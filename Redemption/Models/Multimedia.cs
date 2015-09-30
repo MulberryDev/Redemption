@@ -1,4 +1,5 @@
-﻿using PetaPoco;
+﻿using ImageMagick;
+using PetaPoco;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -6,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Redemption
@@ -25,12 +27,14 @@ namespace Redemption
         [PetaPoco.Ignore]
         public Size Size { get; set; }
 
+        [PetaPoco.Ignore]
+        public bool IsValid { get; private set; }
+
         private FileInfo fileInfo;
         private string ruleMessage;
 
         public Multimedia()
-        { 
-        
+        {  
         }
 
         public Multimedia(FileInfo fileInfo)
@@ -40,6 +44,7 @@ namespace Redemption
             this.Name = Path.GetFileNameWithoutExtension(fileInfo.Name);
             this.FileName = fileInfo.Name;
             this.FilePath = Path.Combine(fileInfo.Name.Substring(0, 2), fileInfo.Name.Substring(2, 4), fileInfo.Name.Substring(7, 3), fileInfo.Name.Substring(10, 4));
+            this.IsValid = false;
 
             // Out of memory exception when handling multiple 6K by 6K images using Image.FromFile
             try
@@ -52,16 +57,43 @@ namespace Redemption
             {
                 Logger.WriteLine("An error occured trying to read the image size of {0}: {1}", this.Name, ex);
             }
+
+
+            int retry = 0;
+            while (retry < 5)
+            {
+                try
+                {
+                    using (FileStream fs = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (Image image = Image.FromStream(fs))
+                            this.Size = new Size(image.Height, image.Width);
+                    retry = 5;
+                }
+                catch (IOException ex)
+                {
+                    Logger.WriteLine("An error occured trying to read the image size of {0}, Retry Number:{1} : {2}", this.Name, retry, ex);
+                    Thread.Sleep(1000);
+                    retry++;
+                }
+            }
+
+            populateProductID();
+            populateVersionNumber();
+
+            this.ApplyRules();
         }
 
-        public bool ApplyRules()
+        private void ApplyRules()
         { 
             IRule[] rules = new IRule[] { new HasValidImageSize(), new CorrectNamingConvention(), new ProductLinkExists() };
             foreach (IRule rule in rules)
-                if (rule.ApplyRule(this, out ruleMessage) == false)
-                    return false;
-  
-            return true;
+                if (!rule.ApplyRule(this, out ruleMessage))
+                {
+                    this.IsValid = false;
+                    return;
+                }
+
+            this.IsValid = true;
         }
 
         private void populateProductID()
@@ -80,30 +112,70 @@ namespace Redemption
             this.Version = (versionCount != 0) ? versionCount : 0;
         }
 
-        public bool Save()
+        public void RenamePhysicalFileToError()
         {
-            if (!this.ApplyRules())
-            {
-                if (File.Exists(fileInfo.FullName + ruleMessage)) File.Delete(fileInfo.FullName + ruleMessage);
-                File.Move(fileInfo.FullName, fileInfo.FullName + ruleMessage);
-                return false;
-            }
+            if (File.Exists(fileInfo.FullName + ruleMessage)) File.Delete(fileInfo.FullName + ruleMessage);
+            File.Move(fileInfo.FullName, fileInfo.FullName + ruleMessage);
+        }
 
-            populateProductID();
-            populateVersionNumber();
-
+        public bool Archive()
+        {
             try
             {
                 Database db = new Database("Database");
 
-                if (this.Version != 0)
-                {
-                    Multimedia archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, MultimediaTypeID, Name, FileName, FilePath, Version FROM Multimedia WHERE Name = @0", this.Name);
-                    db.Delete(archiveMultimedia);
-                    db.Insert("MultimediaArchive", "ID", false, archiveMultimedia);
-                }
-              
+                Multimedia archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, MultimediaTypeID, Name, FileName, FilePath, Version FROM Multimedia WHERE Name = @0", this.Name);
+                db.Delete(archiveMultimedia);
+                string oldPath = archiveMultimedia.FilePath;
+                archiveMultimedia.FilePath += "\\Archive\\" + archiveMultimedia.Version;
+                db.Insert("MultimediaArchive", "ID", false, archiveMultimedia);
+
+                string sourcePath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], oldPath, archiveMultimedia.FileName);
+                string destPath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], archiveMultimedia.FilePath, archiveMultimedia.FileName);
+
+                if (!Directory.Exists(Path.GetDirectoryName(destPath))) Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+
+                string[] sizes = new string[] { "_small", "_medium", "" };
+                foreach (string size in sizes)
+                    File.Move(sourcePath + size, destPath + size);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine("Failed to archive file {0}: {1}", this.Name, ex);
+                return false;
+            }
+        }
+
+        public bool Save()
+        {
+            try
+            {
+                Database db = new Database("Database");
                 db.Insert(this);
+
+                string destPath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], this.FilePath, this.FileName);
+                if (!Directory.Exists(Path.GetDirectoryName(destPath))) Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+                fileInfo.MoveTo(destPath);
+                // Read from file
+                using (MagickImage image = new MagickImage(destPath))
+                {
+                    MagickGeometry size = new MagickGeometry(200, 200);
+                    size.IgnoreAspectRatio = true;
+                    image.Resize(size);
+                    image.Write(destPath + "_small");
+                }
+
+                using (MagickImage image = new MagickImage(destPath))
+                {
+                    MagickGeometry size = new MagickGeometry(800, 800);
+                    size.IgnoreAspectRatio = true;
+                    image.Resize(size);
+                    image.Write(destPath + "_medium");
+                }
+
+
                 return true;
             }
             catch (Exception ex)

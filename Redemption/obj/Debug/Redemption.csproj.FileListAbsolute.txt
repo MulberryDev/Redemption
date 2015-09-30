@@ -4,3 +4,7 @@ H:\Redemption\Redemption\bin\Debug\ClassLibrary1.pdb
 H:\Redemption\Redemption\obj\Debug\Redemption.csprojResolveAssemblyReference.cache
 H:\Redemption\Redemption\obj\Debug\ClassLibrary1.dll
 H:\Redemption\Redemption\obj\Debug\ClassLibrary1.pdb
+H:\Redemption\Redemption\bin\Debug\Magick.NET-AnyCPU.dll
+H:\Redemption\Redemption\bin\Debug\Magick.NET.Core.dll
+H:\Redemption\Redemption\bin\Debug\Magick.NET-AnyCPU.xml
+H:\Redemption\Redemption\bin\Debug\Magick.NET.Core.xml

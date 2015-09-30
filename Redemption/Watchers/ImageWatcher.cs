@@ -25,22 +25,17 @@ namespace Redemption
             foreach (string file in files)
             {
                 FileInfo fileInfo = new FileInfo(file);
-                
-
                 Multimedia multimedia = new Multimedia(fileInfo);
-
-                if (!multimedia.Save()) continue;
+                if (!multimedia.IsValid)
+                {
+                    multimedia.RenamePhysicalFileToError();
+                    continue;
+                }
 
                 try
                 {
-                    string fullTargetPath = Path.Combine(base.destinationPath, multimedia.FilePath);
-                    if (File.Exists(Path.Combine(fullTargetPath, multimedia.FileName)))
-                    {
-                        if (!Directory.Exists(Path.Combine(fullTargetPath, "Archive", multimedia.Version.ToString()))) Directory.CreateDirectory(Path.Combine(fullTargetPath, "Archive", multimedia.Version.ToString()));
-                        File.Move(Path.Combine(base.sourcePath, multimedia.FileName), Path.Combine(fullTargetPath, "Archive", multimedia.Version.ToString(), multimedia.FileName));
-                    }
-                    if (!Directory.Exists(fullTargetPath)) Directory.CreateDirectory(fullTargetPath);
-                    File.Move(file, Path.Combine(fullTargetPath, multimedia.FileName));
+                    if (multimedia.Version > 0) multimedia.Archive();
+                    multimedia.Save();
                 }
                 catch (IOException ex)
                 {
