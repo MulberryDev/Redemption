@@ -46,24 +46,12 @@ namespace Redemption
             this.FilePath = Path.Combine(fileInfo.Name.Substring(0, 2), fileInfo.Name.Substring(2, 4), fileInfo.Name.Substring(7, 3), fileInfo.Name.Substring(10, 4));
             this.IsValid = false;
 
-            // Out of memory exception when handling multiple 6K by 6K images using Image.FromFile
-            try
-            {
-                using (FileStream fs = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (Image image = Image.FromStream(fs))
-                        this.Size = new Size(image.Height, image.Width);
-            }
-            catch (Exception ex)
-            {
-                Logger.WriteLine("An error occured trying to read the image size of {0}: {1}", this.Name, ex);
-            }
-
-
             int retry = 0;
             while (retry < 5)
             {
                 try
                 {
+                    // Out of memory exception when handling multiple 6K by 6K images using Image.FromFile
                     using (FileStream fs = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         using (Image image = Image.FromStream(fs))
                             this.Size = new Size(image.Height, image.Width);
@@ -74,6 +62,12 @@ namespace Redemption
                     Logger.WriteLine("An error occured trying to read the image size of {0}, Retry Number:{1} : {2}", this.Name, retry, ex);
                     Thread.Sleep(1000);
                     retry++;
+                }
+                catch (ArgumentException ex)
+                { 
+                    Logger.WriteLine("An argument exception occured trying to read the image size of {0}", this.Name, retry, ex);
+                    this.ruleMessage = "NameNotValid";
+                    return;
                 }
             }
 
