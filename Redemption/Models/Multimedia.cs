@@ -23,6 +23,7 @@ namespace Redemption
         public string FileName { get; set; }
         public string FilePath { get; set; }
         public int Version { get; set; }
+        public bool IsActive { get; set; }
 
         [PetaPoco.Ignore]
         public Size Size { get; set; }
@@ -43,7 +44,11 @@ namespace Redemption
             this.fileInfo = fileInfo;
             this.Name = Path.GetFileNameWithoutExtension(fileInfo.Name);
             this.FileName = fileInfo.Name;
-            this.FilePath = Path.Combine(fileInfo.Name.Substring(0, 2), fileInfo.Name.Substring(2, 4), fileInfo.Name.Substring(7, 3), fileInfo.Name.Substring(10, 4));
+            this.IsActive = true;
+            populateProductID();
+            populateVersionNumber();
+            // Requires version number to be populated before calculation.
+            this.FilePath = Path.Combine(fileInfo.Name.Substring(0, 2), fileInfo.Name.Substring(2, 4), fileInfo.Name.Substring(7, 3), fileInfo.Name.Substring(10, 4), this.Version.ToString());
             this.IsValid = false;
 
             int retry = 0;
@@ -118,21 +123,12 @@ namespace Redemption
             {
                 Database db = new Database("Database");
 
-                Multimedia archiveMultimedia = db.SingleOrDefault<Multimedia>("SELECT ID, ProductID, MultimediaTypeID, Name, FileName, FilePath, Version FROM Multimedia WHERE Name = @0", this.Name);
-                db.Delete(archiveMultimedia);
-                string oldPath = archiveMultimedia.FilePath;
-                archiveMultimedia.FilePath += "\\Archive\\" + archiveMultimedia.Version;
-                db.Insert("MultimediaArchive", "ID", false, archiveMultimedia);
-
-                string sourcePath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], oldPath, archiveMultimedia.FileName);
-                string destPath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], archiveMultimedia.FilePath, archiveMultimedia.FileName);
-
-                if (!Directory.Exists(Path.GetDirectoryName(destPath))) Directory.CreateDirectory(Path.GetDirectoryName(destPath));
-
-                string[] sizes = new string[] { "_small", "_medium", "" };
-                foreach (string size in sizes)
-                    File.Move(sourcePath + size, destPath + size);
-
+                foreach(var archiveMultimedia in db.Query<Multimedia>("SELECT ID, ProductID, MultimediaTypeID, Name, FileName, FilePath, Version FROM Multimedia WHERE Name = @0", this.Name))
+                {
+                   archiveMultimedia.IsActive = false;
+                   new Database("Database").Update(archiveMultimedia);
+                }
+             
                 return true;
             }
             catch (Exception ex)
@@ -147,6 +143,7 @@ namespace Redemption
             try
             {
                 Database db = new Database("Database");
+                
                 db.Insert(this);
 
                 string destPath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], this.FilePath, this.FileName);
