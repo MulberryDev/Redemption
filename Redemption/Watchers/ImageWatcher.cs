@@ -19,27 +19,42 @@ namespace Redemption
             if (!Directory.Exists(base.destinationPath))
                 Directory.CreateDirectory(base.destinationPath);
 
-            var ext = new List<string> {".jpg", ".gif", ".png"};
+            var ext = new List<string> {".jpg", ".gif", ".png", ".jpeg"};
             var files = Directory.GetFiles(base.sourcePath, "*", SearchOption.AllDirectories).Where(s => ext.Any(i => s.EndsWith(i)));
 
             foreach (string file in files)
             {
-                FileInfo fileInfo = new FileInfo(file);
-                Multimedia multimedia = new Multimedia(fileInfo);
-                if (!multimedia.IsValid)
+                int retry = 0;
+                while (retry < 5)
                 {
-                    multimedia.RenamePhysicalFileToError();
-                    continue;
-                }
-
-                try
-                {
-                    if (multimedia.Version > 0) multimedia.Archive();
-                    multimedia.Save();
-                }
-                catch (IOException ex)
-                {
-                    Logger.WriteLine("Failed to move a file in {0}: {1}", base.sourcePath, ex);
+                    try
+                    {
+                        // Out of memory exception when handling multiple 6K by 6K images using Image.FromFile
+                        FileInfo fileInfo = new FileInfo(file);
+                        Multimedia multimedia = new Multimedia(fileInfo);
+                        if (!multimedia.IsValid)
+                        {
+                            multimedia.RenamePhysicalFileToError();
+                            retry = 5;
+                            continue;
+                        }
+                        try
+                        {
+                            if (multimedia.Version > 0) multimedia.Archive();
+                            multimedia.Save();
+                        }
+                        catch (IOException ex)
+                        {
+                            Logger.WriteLine("Failed to move a file in {0}: {1}", base.sourcePath, ex);
+                        }
+                        retry = 5;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.WriteLine("An error occured trying to read or move the file, Retry Number:{0} : {1}", retry, ex);
+                        Thread.Sleep(1000);
+                        retry++;
+                    }
                 }
             }
 
@@ -53,7 +68,12 @@ namespace Redemption
                 foreach (var folder in Directory.EnumerateDirectories(path))
                 {
                     DirectoryInfo folderInfo = new DirectoryInfo(folder);
-                    if (folderInfo.EnumerateFiles().Any()) return;
+                    foreach (var fileInfo in folderInfo.EnumerateFiles())
+                    {
+                        if (File.Exists(Path.Combine(path, fileInfo.Name))) File.Delete(Path.Combine(path, fileInfo.Name));
+                        File.Move(fileInfo.FullName, Path.Combine(path, fileInfo.Name));
+                    }
+
                     if (folderInfo.EnumerateDirectories().Any()) DeleteEmptyFolders(folder);
 
                     Directory.Delete(folder);

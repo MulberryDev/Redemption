@@ -113,8 +113,8 @@ namespace Redemption
 
         public void RenamePhysicalFileToError()
         {
-            if (File.Exists(fileInfo.FullName + ruleMessage)) File.Delete(fileInfo.FullName + ruleMessage);
-            File.Move(fileInfo.FullName, fileInfo.FullName + ruleMessage);
+            if (File.Exists(Path.Combine(ConfigurationManager.AppSettings["sourceFolder"], fileInfo.Name + ruleMessage))) File.Delete(Path.Combine(ConfigurationManager.AppSettings["sourceFolder"], fileInfo.Name + ruleMessage));
+            File.Move(fileInfo.FullName, Path.Combine(ConfigurationManager.AppSettings["sourceFolder"], fileInfo.Name + ruleMessage));
         }
 
         public bool Archive()
