@@ -3,36 +3,44 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Redemption
 {
     public static class Helper
     {
-        public static bool IsFileLocked(FileInfo file)
+        public static void Retry(Action action, TimeSpan retryInterval, int retryCount = 3)
         {
-            FileStream stream = null;
+            Retry<object>(() => 
+            {
+                action();
+                return null;
+            }, retryInterval, retryCount);
+        }
 
-            try
-            {
-                stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-            }
-            catch (IOException)
-            {
-                //the file is unavailable because it is:
-                //still being written to
-                //or being processed by another thread
-                //or does not exist (has already been processed)
-                return true;
-            }
-            finally
-            {
-                if (stream != null)
-                    stream.Close();
-            }
+        public static T Retry<T>(Func<T> action, TimeSpan retryInterval, int retryCount = 3)
+        {
+            var exceptions = new List<Exception>();
 
-            //file is not locked
-            return false;
+            for (int retry = 0; retry < retryCount; retry++)
+            {
+                try
+                {
+                    if (retry > 0)
+                        Thread.Sleep(retryInterval);
+                    return action();
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+            
+            foreach(var exception in exceptions)
+                Logger.WriteLine(exception.Message);
+
+            return default(T);
         }
     }
 }

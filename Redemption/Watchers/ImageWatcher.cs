@@ -13,37 +13,43 @@ namespace Redemption
     public class ImageWatcher : Watcher
     {
         public ImageWatcher() : base(ConfigurationManager.AppSettings["sourceFolder"], ConfigurationManager.AppSettings["destinationFolder"]) { }
+        private List<string> ext = new List<string> { ".jpg", ".gif", ".png", ".jpeg" };
+        private IEnumerable<string> files;
 
         protected override void OnChanged(object source, FileSystemEventArgs e)
         {
-            if (!Directory.Exists(base.destinationPath))
-                Directory.CreateDirectory(base.destinationPath);
+            Helper.Retry(() => PopulateImageList(), TimeSpan.FromSeconds(1));
+            if (files != null || files.Count() != 0) ProcessImageList();
+        }
 
-            var ext = new List<string> {".jpg", ".gif", ".png"};
-            var files = Directory.GetFiles(base.sourcePath, "*", SearchOption.AllDirectories).Where(s => ext.Any(i => s.EndsWith(i)));
+        private void PopulateImageList()
+        {
+            files = Directory.GetFiles(base.sourcePath, "*", SearchOption.AllDirectories).Where(s => ext.Any(i => s.EndsWith(i)));
+        }
 
+        private void ProcessImageList()
+        {
             foreach (string file in files)
-            {
-                FileInfo fileInfo = new FileInfo(file);
-                Multimedia multimedia = new Multimedia(fileInfo);
-                if (!multimedia.IsValid)
-                {
-                    multimedia.RenamePhysicalFileToError();
-                    continue;
-                }
+                Helper.Retry(() => ProcessImage(file), TimeSpan.FromSeconds(1));
 
-                try
-                {
-                    if (multimedia.Version > 0) multimedia.Archive();
-                    multimedia.Save();
-                }
-                catch (IOException ex)
-                {
-                    Logger.WriteLine("Failed to move a file in {0}: {1}", base.sourcePath, ex);
-                }
-            }
+            PopulateImageList();
+            if (files.Count() != 0) ProcessImageList();
 
             DeleteEmptyFolders(base.sourcePath);
+        }
+
+        private void ProcessImage(string file)
+        {
+            FileInfo fileInfo = new FileInfo(file);
+            Multimedia multimedia = new Multimedia(fileInfo);
+            if (!multimedia.IsValid)
+            {
+                multimedia.RenamePhysicalFileToError();
+                return;
+            }
+
+            if (multimedia.Version > 0) multimedia.Archive();
+            multimedia.Save();
         }
 
         private void DeleteEmptyFolders(string path)
@@ -53,10 +59,18 @@ namespace Redemption
                 foreach (var folder in Directory.EnumerateDirectories(path))
                 {
                     DirectoryInfo folderInfo = new DirectoryInfo(folder);
+
+                    foreach (var fileInfo in folderInfo.EnumerateFiles().Where(x => ext.Any(i => x.Extension != i)))
+                    {
+                        if (File.Exists(Path.Combine(path, fileInfo.Name))) File.Delete(Path.Combine(path, fileInfo.Name));
+                        File.Move(fileInfo.FullName, Path.Combine(path, fileInfo.Name));
+                    }
+
                     if (folderInfo.EnumerateFiles().Any()) return;
                     if (folderInfo.EnumerateDirectories().Any()) DeleteEmptyFolders(folder);
 
                     Directory.Delete(folder);
+                    DeleteEmptyFolders(folder);
                 }
             }
             catch (IOException ex)

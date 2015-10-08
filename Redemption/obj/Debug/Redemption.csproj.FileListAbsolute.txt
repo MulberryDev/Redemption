@@ -8,3 +8,13 @@ H:\Redemption\Redemption\bin\Debug\Magick.NET-AnyCPU.dll
 H:\Redemption\Redemption\bin\Debug\Magick.NET.Core.dll
 H:\Redemption\Redemption\bin\Debug\Magick.NET-AnyCPU.xml
 H:\Redemption\Redemption\bin\Debug\Magick.NET.Core.xml
+C:\Redemption\Redemption\bin\Debug\ClassLibrary1.dll.config
+C:\Redemption\Redemption\bin\Debug\ClassLibrary1.dll
+C:\Redemption\Redemption\bin\Debug\ClassLibrary1.pdb
+C:\Redemption\Redemption\bin\Debug\Magick.NET-AnyCPU.dll
+C:\Redemption\Redemption\bin\Debug\Magick.NET.Core.dll
+C:\Redemption\Redemption\bin\Debug\Magick.NET-AnyCPU.xml
+C:\Redemption\Redemption\bin\Debug\Magick.NET.Core.xml
+C:\Redemption\Redemption\obj\Debug\Redemption.csprojResolveAssemblyReference.cache
+C:\Redemption\Redemption\obj\Debug\ClassLibrary1.dll
+C:\Redemption\Redemption\obj\Debug\ClassLibrary1.pdb
