@@ -106,7 +106,7 @@ namespace Redemption
         private void populateVersionNumber()
         { 
             Database db = new Database("Database");
-            int versionCount = db.ExecuteScalar<int>("SELECT (SELECT COUNT(ID) FROM Multimedia WHERE name = @0) + (SELECT COUNT(ID) FROM MultimediaArchive WHERE name = @0)", this.Name);
+            int versionCount = db.ExecuteScalar<int>("SELECT (SELECT COUNT(ID) FROM Multimedia WHERE name = @0)", this.Name);
 
             this.Version = (versionCount != 0) ? versionCount : 0;
         }
