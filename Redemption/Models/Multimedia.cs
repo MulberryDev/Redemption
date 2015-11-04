@@ -1,4 +1,5 @@
-﻿using ImageMagick;
+﻿using ClassLibrary1.Models;
+using ImageMagick;
 using PetaPoco;
 using System;
 using System.Collections.Generic;
@@ -166,6 +167,7 @@ namespace Redemption
                     image.Write(destPath + "_medium");
                 }
 
+                FTP.UploadFile(this);
 
                 return true;
             }

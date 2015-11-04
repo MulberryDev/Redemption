@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Threading;
+using ClassLibrary1.Models;
 
 namespace Redemption
 {
@@ -30,7 +31,9 @@ namespace Redemption
         private void ProcessImageList()
         {
             foreach (string file in files)
+            {
                 Helper.Retry(() => ProcessImage(file), TimeSpan.FromSeconds(1));
+            }
 
             PopulateImageList();
             if (files.Count() != 0) ProcessImageList();

@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helper.cs" />
+    <Compile Include="Models\FTP.cs" />
     <Compile Include="Models\Size.cs" />
     <Compile Include="Rules\ProductLinkExists.cs" />
     <Compile Include="Watchers\ImageWatcher.cs" />
