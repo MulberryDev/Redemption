@@ -46,7 +46,6 @@ namespace Redemption
             this.Name = Path.GetFileNameWithoutExtension(fileInfo.Name);
             this.FileName = fileInfo.Name;
             this.IsActive = true;
-            populateProductID();
             populateVersionNumber();
             // Requires version number to be populated before calculation.
             this.FilePath = Path.Combine(fileInfo.Name.Substring(0, 2), fileInfo.Name.Substring(2, 4), fileInfo.Name.Substring(7, 3), fileInfo.Name.Substring(10, 4), this.Version.ToString());
@@ -77,10 +76,8 @@ namespace Redemption
                 }
             }
 
-            populateProductID();
-            populateVersionNumber();
-
             this.ApplyRules();
+            if (this.IsValid) populateProductID();
         }
 
         private void ApplyRules()
@@ -115,7 +112,7 @@ namespace Redemption
         public void RenamePhysicalFileToError()
         {
             if (File.Exists(Path.Combine(ConfigurationManager.AppSettings["sourceFolder"], fileInfo.Name + ruleMessage))) File.Delete(Path.Combine(ConfigurationManager.AppSettings["sourceFolder"], fileInfo.Name + ruleMessage));
-            File.Move(fileInfo.FullName, Path.Combine(ConfigurationManager.AppSettings["sourceFolder"], fileInfo.Name + ruleMessage));
+            File.Move(fileInfo.FullName, Path.Combine(ConfigurationManager.AppSettings["sourceFolder"], this.Name + "_" + ruleMessage + fileInfo.Extension));
         }
 
         public bool Archive()
@@ -145,10 +142,9 @@ namespace Redemption
             {
                 Database db = new Database("Database");
                 
-                db.Insert(this);
-
                 string destPath = Path.Combine(ConfigurationManager.AppSettings["destinationFolder"], this.FilePath, this.FileName);
                 if (!Directory.Exists(Path.GetDirectoryName(destPath))) Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+                // If this throws an error the archive code is not working
                 fileInfo.MoveTo(destPath);
                 // Read from file
                 using (MagickImage image = new MagickImage(destPath))
@@ -168,7 +164,8 @@ namespace Redemption
                 }
 
                 FTP.UploadFile(this);
-
+                db.Insert(this);
+                
                 return true;
             }
             catch (Exception ex)

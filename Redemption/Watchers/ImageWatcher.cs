@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Threading;
 using ClassLibrary1.Models;
+using System.Collections.ObjectModel;
 
 namespace Redemption
 {
@@ -15,6 +16,7 @@ namespace Redemption
     {
         public ImageWatcher() : base(ConfigurationManager.AppSettings["sourceFolder"], ConfigurationManager.AppSettings["destinationFolder"]) { }
         private List<string> ext = new List<string> { ".jpg", ".gif", ".png", ".jpeg" };
+        private List<string> ruleNames = new List<string> { "ProductNotExists", "SizeNotValid", "NameNotValid" };
         private IEnumerable<string> files;
 
         protected override void OnChanged(object source, FileSystemEventArgs e)
@@ -25,15 +27,12 @@ namespace Redemption
 
         private void PopulateImageList()
         {
-            files = Directory.GetFiles(base.sourcePath, "*", SearchOption.AllDirectories).Where(s => ext.Any(i => s.EndsWith(i)));
+            files = Directory.GetFiles(base.sourcePath, "*", SearchOption.AllDirectories).Where(s => ext.Any(i => s.EndsWith(i)) && !ruleNames.Any(x => s.Contains(x)));
         }
 
         private void ProcessImageList()
         {
-            foreach (string file in files)
-            {
-                Helper.Retry(() => ProcessImage(file), TimeSpan.FromSeconds(1));
-            }
+            Parallel.ForEach<string>(files, file => Helper.Retry(() => ProcessImage(file), TimeSpan.FromSeconds(1)));
 
             PopulateImageList();
             if (files.Count() != 0) ProcessImageList();
